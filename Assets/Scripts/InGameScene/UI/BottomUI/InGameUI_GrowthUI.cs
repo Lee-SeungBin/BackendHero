@@ -1,30 +1,34 @@
 // Copyright 2013-2022 AFI, INC. All rights reserved.
 
+using BackendData.GameData;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace InGameScene.UI
 {
-    //===========================================================
-    // 아래 버튼 및 각 버튼별 UI를 교체하는 아랫쪽 UI를 제어하는 클래스
-    //===========================================================
     public class InGameUI_GrowthUI : MonoBehaviour
     {
         private InGameUI_BottomUIBase[] _bottomUIs;
-        private Button[] _bottomUIButtons;
-
+        private Button[] XUIButtons;
+        private int Count = 1;
+        private List<GameObject> GrowthObj = new List<GameObject>();
+        private UserData userData;
         [SerializeField] private GameObject _UIChangeButtonParentObject;
         [SerializeField] private GameObject _GrowthStatPrefab;
 
-        //===========================================================
-        // 씬에서 다른 바텀 UI들은 전부 활성화가 되어있어야한다.
-        //===========================================================
-
+        private void OnEnable()
+        {
+            Init();
+        }
 
         public void Init()
         {
+            userData = StaticManager.Backend?.GameData.UserData;
             _bottomUIs = transform.GetComponentsInChildren<InGameUI_BottomUIBase>();
+            int GrowthMin = (int)UserData.GrowthType.Min;
+            int GrowthMax = (int)UserData.GrowthType.Max;
 
             // BottomUI 정보 불러와 초기화
             foreach (var ui in _bottomUIs)
@@ -33,17 +37,36 @@ namespace InGameScene.UI
             }
 
             //바텀UI의 버튼 배열 
-            _bottomUIButtons = _UIChangeButtonParentObject.GetComponentsInChildren<Button>();
+            XUIButtons = _UIChangeButtonParentObject.GetComponentsInChildren<Button>();
 
             // 각 버튼별 클릭시 활성화되는 UI 배정
-            for (int i = 0; i < _bottomUIButtons.Length; i++)
+            for (int i = 0; i < XUIButtons.Length; i++)
             {
                 int index = i;
-                _bottomUIButtons[index].onClick.AddListener(() => ChangeUI(index));
+                XUIButtons[index].onClick.AddListener(() => ChangeUI(index));
             }
 
             // 2번 UI 현재 장비로 초기 설정
             ChangeUI(2);
+
+            for (int i = GrowthMin; i <= GrowthMax; i++)
+            {
+                GameObject Temp;
+                if (GrowthObj.Count <= GrowthMax)
+                {
+                    Temp = Instantiate(_GrowthStatPrefab, transform);
+                    GrowthObj.Add(Temp);
+                }
+                else
+                {
+                    Temp = GrowthObj[i];
+                    Temp.SetActive(true);
+                }
+
+                Temp.GetComponent<InGameUI_GrowthUI_Item>().Init(null, userData, (UserData.GrowthType)i, Count);
+            }
+
+
         }
 
         // 바텀 내 각 BottomUIBase를 가지고 있는 UI 클래스에 접근
@@ -65,29 +88,25 @@ namespace InGameScene.UI
         {
             try
             {
-                for (int i = 0; i < _bottomUIButtons.Length; i++)
+                for (int i = 0; i < XUIButtons.Length; i++)
                 {
-                    _bottomUIButtons[i].image.color = Color.white;
+                    XUIButtons[i].image.color = Color.white;
                 }
 
-                _bottomUIButtons[index].image.color = Color.gray;
-
-                Type type = _bottomUIs[index].GetType();
-
-                // 배열을 순회하면서 해당 UI에 맞는 클래스에 존재할 경우 활성화, 나머지는 비활성화
-                for (int i = 0; i < _bottomUIs.Length; i++)
+                XUIButtons[index].image.color = Color.gray;
+                switch (index)
                 {
-
-                    if (_bottomUIs[i].GetType() == type)
-                    {
-                        _bottomUIs[i].gameObject.SetActive(true);
-
-                        _bottomUIs[i].Open();
-                    }
-                    else
-                    {
-                        _bottomUIs[i].gameObject.SetActive(false);
-                    }
+                    case 0:
+                        Count = 100;
+                        break;
+                    case 1:
+                        Count = 10;
+                        break;
+                    case 2:
+                        Count = 1;
+                        break;
+                    default:
+                        break;
                 }
             }
             catch (Exception e)

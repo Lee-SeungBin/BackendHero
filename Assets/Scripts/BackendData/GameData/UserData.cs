@@ -12,15 +12,17 @@ namespace BackendData.GameData
     //===============================================================
     public partial class UserData
     {
-        const int GrowthAtk = 3;
-        const int GrowthHp = 10;
-        const int GrowthHpRecorvery = 1;
+        public const int GrowthAtk = 3;
+        public const int GrowthHp = 10;
+        public const int GrowthHpRecorvery = 1;
         public enum GrowthType
         {
             None = -1,
             Atk,
             Hp,
-            HpRecorvery
+            HpRecorvery,
+            Min = Atk,
+            Max = HpRecorvery,
         }
         public int Level { get; private set; }
         public int Atk { get; private set; }
@@ -28,6 +30,11 @@ namespace BackendData.GameData
         public int HpRecorvery { get; private set; }
         public float Money { get; private set; }
         public string LastLoginTime { get; private set; }
+
+        public int GrowthAtkCount { get; private set; }
+        public int GrowthHpCount { get; private set; }
+        public int GrowthHpRecorveryCount { get; private set; }
+
 
         public float Exp { get; private set; }
 
@@ -56,6 +63,9 @@ namespace BackendData.GameData
             Atk = 30;
             Hp = 100;
             HpRecorvery = 10;
+            GrowthAtkCount = 0;
+            GrowthHpCount = 0;
+            GrowthHpRecorveryCount = 0;
             Money = 10000;
             MaxExp = 100;
         }
@@ -68,6 +78,9 @@ namespace BackendData.GameData
             Atk = int.Parse(gameDataJson["Atk"].ToString());
             Hp = int.Parse(gameDataJson["Hp"].ToString());
             HpRecorvery = int.Parse(gameDataJson["HpRecorvery"].ToString());
+            GrowthAtkCount = int.Parse(gameDataJson["GrowthAtkCount"].ToString());
+            GrowthHpCount = int.Parse(gameDataJson["GrowthHpCount"].ToString());
+            GrowthHpRecorveryCount = int.Parse(gameDataJson["GrowthHpRecorveryCount"].ToString());
             Exp = float.Parse(gameDataJson["Exp"].ToString());
             MaxExp = float.Parse(gameDataJson["MaxExp"].ToString());
             Money = float.Parse(gameDataJson["Money"].ToString());
@@ -105,6 +118,9 @@ namespace BackendData.GameData
             param.Add("Atk", Atk);
             param.Add("Hp", Hp);
             param.Add("HpRecorvery", HpRecorvery);
+            param.Add("GrowthAtkCount", GrowthAtkCount);
+            param.Add("GrowthHpCount", GrowthHpCount);
+            param.Add("GrowthHpRecorveryCount", GrowthHpRecorveryCount);
             param.Add("Money", Money);
             param.Add("Exp", Exp);
             param.Add("MaxExp", MaxExp);
@@ -163,16 +179,40 @@ namespace BackendData.GameData
             {
                 case GrowthType.Atk:
                     Atk += GrowthAtk * count;
+                    GrowthAtkCount += count;
                     break;
                 case GrowthType.Hp:
                     Hp += GrowthHp * count;
+                    GrowthHpCount += count;
                     break;
                 case GrowthType.HpRecorvery:
                     HpRecorvery += GrowthHpRecorvery * count;
+                    GrowthHpRecorveryCount += count;
                     break;
                 default:
                     break;
             }
+        }
+
+        public String GetGrowthStatString(int count, GrowthType growthType)
+        {
+            string GrowthStat = string.Empty;
+            switch (growthType)
+            {
+                case GrowthType.Atk:
+                    GrowthStat = (Atk + GrowthAtk * count).ToString();
+                    break;
+                case GrowthType.Hp:
+                    GrowthHpCount += count;
+                    break;
+                case GrowthType.HpRecorvery:
+                    HpRecorvery += GrowthHpRecorvery * count;
+                    GrowthHpRecorveryCount += count;
+                    break;
+                default:
+                    break;
+            }
+            return GrowthStat;
         }
 
         // 레벨업하는 함수
