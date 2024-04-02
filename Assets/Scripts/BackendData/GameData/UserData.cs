@@ -30,7 +30,7 @@ namespace BackendData.GameData
         public int HpRecorvery { get; private set; }
         public float Money { get; private set; }
         public string LastLoginTime { get; private set; }
-
+        public int MainQuestCount { get; private set; }
         public int GrowthAtkCount { get; private set; }
         public int GrowthHpCount { get; private set; }
         public int GrowthHpRecorveryCount { get; private set; }
