@@ -19,6 +19,7 @@ namespace InGameScene.UI
         [SerializeField] private Button StatUpgradeButton;
 
         [SerializeField] private TMP_Text StatUpgradePriceText;
+        [HideInInspector] public int UpgradeCount;
 
         private UserData UserInfo;
 
@@ -29,54 +30,63 @@ namespace InGameScene.UI
 
             _image.sprite = sprite;
             StatName.text = growthType.ToString();
+            UpgradeCount = count;
+            //string stat = string.Empty;
+            //string statLevel = string.Empty;
 
-            string stat = string.Empty;
-            string statLevel = string.Empty;
-            int statPoint = 0;
-            switch (growthType)
-            {
-                case UserData.GrowthType.Atk:
-                    statPoint = userData.Atk;
-                    stat = userData.Atk.ToString() + " > " + (userData.Atk + UserData.GrowthAtk * count).ToString();
-                    statLevel = "Lv. " + userData.GrowthAtkCount;
-                    break;
-                case UserData.GrowthType.Hp:
-                    stat = userData.Hp.ToString() + " > " + (userData.Hp + UserData.GrowthHp * count).ToString(); ;
-                    statLevel = "Lv. " + userData.GrowthHpCount.ToString();
-                    break;
-                case UserData.GrowthType.HpRecorvery:
-                    stat = userData.HpRecorvery.ToString() + " > " + (userData.HpRecorvery + UserData.GrowthHpRecorvery * count).ToString();
-                    statLevel = "Lv. " + userData.GrowthHpRecorveryCount.ToString();
-                    break;
-                default:
-                    break;
-            }
-            //stat += $"atk {weaponInfo.GetCurrentWeaponStat().Atk}\n";
-            //stat += $"spd {weaponInfo.GetCurrentWeaponStat().Spd}\n";
-            //stat += $"delay {weaponInfo.GetCurrentWeaponStat().Delay}\n";
-            Stat.text = stat;
-            Stat_Level.text = statLevel;
-            StatUpgradePriceText.text = (100 + (userData.GrowthAtkCount * count)).ToString();
+            //switch (growthType)
+            //{
+            //    case UserData.GrowthType.Atk:
+            //        stat = userData.Atk.ToString() + " > " + (userData.Atk + UserData.GrowthAtk * count).ToString();
+            //        statLevel = "Lv. " + userData.GrowthAtkCount;
+            //        break;
+            //    case UserData.GrowthType.Hp:
+            //        stat = userData.Hp.ToString() + " > " + (userData.Hp + UserData.GrowthHp * count).ToString(); ;
+            //        statLevel = "Lv. " + userData.GrowthHpCount.ToString();
+            //        break;
+            //    case UserData.GrowthType.HpRecorvery:
+            //        stat = userData.HpRecorvery.ToString() + " > " + (userData.HpRecorvery + UserData.GrowthHpRecorvery * count).ToString();
+            //        statLevel = "Lv. " + userData.GrowthHpRecorveryCount.ToString();
+            //        break;
+            //    default:
+            //        break;
+            //}
+            //Stat.text = stat;
+            //Stat_Level.text = statLevel;
+            //StatUpgradePriceText.text = (100 + (userData.GrowthAtkCount * count)).ToString();
+            StatTextInit(userData, growthType, count);
+
 
             // 업그레이드 버튼 연결
-            StatUpgradeButton.onClick.AddListener(() => OnClickUpgradeButton(userData, growthType, count));
+            StatUpgradeButton.onClick.AddListener(() => OnClickUpgradeButton(userData, growthType));
         }
 
         // 업그레이드 클릭시 호출되는 함수
-        void OnClickUpgradeButton(BackendData.GameData.UserData userData, UserData.GrowthType growthType, int count)
+        void OnClickUpgradeButton(UserData userData, UserData.GrowthType growthType)
         {
             // 장비 업그레이드 비용
             float upgradePrice = 0f;
             switch (growthType)
             {
                 case UserData.GrowthType.Atk:
-                    upgradePrice = 100 + (userData.GrowthAtkCount * count);
+                    for (int level = userData.GrowthAtkCount; level < userData.GrowthAtkCount + UpgradeCount; level++)
+                    {
+                        upgradePrice += (level + 1) * 100;
+                    }
                     break;
                 case UserData.GrowthType.Hp:
-                    upgradePrice = 100 + (userData.GrowthHpCount * count);
+                    for (int level = userData.GrowthHpCount; level < userData.GrowthHpCount + UpgradeCount; level++)
+                    {
+                        upgradePrice += (level + 1) * 100;
+                    }
+                    //upgradePrice = (userData.GrowthHpCount + 1) * 100 * count;
                     break;
                 case UserData.GrowthType.HpRecorvery:
-                    upgradePrice = 100 + (userData.GrowthHpRecorveryCount * count);
+                    for (int level = userData.GrowthHpRecorveryCount; level < userData.GrowthHpRecorveryCount + UpgradeCount; level++)
+                    {
+                        upgradePrice += (level + 1) * 100;
+                    }
+                    //upgradePrice = (userData.GrowthHpRecorveryCount + 1) * 100 * count;
                     break;
                 default:
                     break;
@@ -91,28 +101,73 @@ namespace InGameScene.UI
 
             // money 데이터 감소
             Managers.Game.UpdateUserData(-upgradePrice, 0);
-            Managers.Game.UpdateUserGrowthData(count, growthType);
+            Managers.Game.UpdateUserGrowthData(UpgradeCount, growthType);
 
             // 돈이 충분할 경우, 레벨업 + 레벨 갱신 + 스텟 갱신
+            //string stat = string.Empty;
+            //string statLevel = string.Empty;
+            //switch (growthType)
+            //{
+            //    case UserData.GrowthType.Atk:
+            //        stat = userData.Atk.ToString() + " > " + (userData.Atk * count).ToString();
+            //        statLevel = "Lv. " + userData.GrowthAtkCount.ToString();
+            //        break;
+            //    case UserData.GrowthType.Hp:
+            //        stat = userData.Hp.ToString() + " > " + (userData.Hp * count).ToString(); ;
+            //        statLevel = "Lv. " + userData.GrowthHpCount.ToString();
+            //        break;
+            //    case UserData.GrowthType.HpRecorvery:
+            //        stat = userData.HpRecorvery.ToString() + " > " + (userData.HpRecorvery * count).ToString(); ;
+            //        statLevel = "Lv. " + userData.GrowthHpRecorveryCount.ToString();
+            //        break;
+            //    default:
+            //        break;
+            //}
+            StatTextInit(userData, growthType, UpgradeCount);
+        }
+
+        public void StatTextInit(UserData userData, UserData.GrowthType growthType, int count)
+        {
             string stat = string.Empty;
             string statLevel = string.Empty;
+            string statPrice = string.Empty;
+            int Price = 0;
             switch (growthType)
             {
                 case UserData.GrowthType.Atk:
-                    stat = userData.Atk.ToString() + " > " + (userData.Atk * count).ToString();
-                    statLevel = "Lv. " + userData.GrowthAtkCount.ToString();
+                    stat = userData.Atk.ToString() + " > " + (userData.Atk + UserData.GrowthAtk * count).ToString();
+                    statLevel = "Lv. " + userData.GrowthAtkCount;
+                    for (int level = userData.GrowthAtkCount; level < userData.GrowthAtkCount + count; level++)
+                    {
+                        Price += (level + 1) * 100;
+                    }
+                    statPrice = Price.ToString();
                     break;
                 case UserData.GrowthType.Hp:
-                    stat = userData.Hp.ToString() + " > " + (userData.Hp * count).ToString(); ;
+                    stat = userData.Hp.ToString() + " > " + (userData.Hp + UserData.GrowthHp * count).ToString(); ;
                     statLevel = "Lv. " + userData.GrowthHpCount.ToString();
+                    for (int level = userData.GrowthHpCount; level < userData.GrowthHpCount + count; level++)
+                    {
+                        Price += (level + 1) * 100;
+                    }
+                    statPrice = Price.ToString();
                     break;
                 case UserData.GrowthType.HpRecorvery:
-                    stat = userData.HpRecorvery.ToString() + " > " + (userData.HpRecorvery * count).ToString(); ;
+                    stat = userData.HpRecorvery.ToString() + " > " + (userData.HpRecorvery + UserData.GrowthHpRecorvery * count).ToString();
                     statLevel = "Lv. " + userData.GrowthHpRecorveryCount.ToString();
+                    for (int level = userData.GrowthHpRecorveryCount; level < userData.GrowthHpRecorveryCount + count; level++)
+                    {
+                        Price += (level + 1) * 100;
+                    }
+                    statPrice = Price.ToString();
                     break;
                 default:
                     break;
             }
+
+            Stat.text = stat;
+            Stat_Level.text = statLevel;
+            StatUpgradePriceText.text = statPrice;
         }
     }
 }

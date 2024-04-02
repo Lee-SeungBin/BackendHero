@@ -46,9 +46,6 @@ namespace InGameScene.UI
                 XUIButtons[index].onClick.AddListener(() => ChangeUI(index));
             }
 
-            // 2번 UI 현재 장비로 초기 설정
-            ChangeUI(2);
-
             for (int i = GrowthMin; i <= GrowthMax; i++)
             {
                 GameObject Temp;
@@ -66,7 +63,8 @@ namespace InGameScene.UI
                 Temp.GetComponent<InGameUI_GrowthUI_Item>().Init(null, userData, (UserData.GrowthType)i, Count);
             }
 
-
+            // 2번 UI 현재 장비로 초기 설정
+            ChangeUI(2);
         }
 
         // 바텀 내 각 BottomUIBase를 가지고 있는 UI 클래스에 접근
@@ -108,6 +106,15 @@ namespace InGameScene.UI
                     default:
                         break;
                 }
+
+                int GrowthMin = (int)UserData.GrowthType.Min;
+                int GrowthMax = (int)UserData.GrowthType.Max;
+                for (int i = GrowthMin; i <= GrowthMax; i++)
+                {
+                    GrowthObj[i].GetComponent<InGameUI_GrowthUI_Item>().UpgradeCount = Count;
+                    GrowthObj[i].GetComponent<InGameUI_GrowthUI_Item>().StatTextInit(userData, (UserData.GrowthType)i, Count);
+                }
+
             }
             catch (Exception e)
             {
