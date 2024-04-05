@@ -1,31 +1,42 @@
 ﻿// Copyright 2013-2022 AFI, INC. All rights reserved.
 
+using LitJson;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using LitJson;
 
-namespace BackendData.Chart.Quest {
-    public enum QuestType {
+namespace BackendData.Chart.Quest
+{
+    public enum QuestType
+    {
         LevelUp,
         UseGold,
         DefeatEnemy,
         GetItem,
+        //DefeatEnemy_Main,
+        //AtkUp,
+        //HpUp,
+        //HpRecorveryUp,
+        //StageClear,
     }
 
-    public enum QuestRepeatType {
+    public enum QuestRepeatType
+    {
         Once,
         Day,
         Week,
-        Month
+        Month,
+        //Main,
     }
-    
-    public enum RequestItemType{
+
+    public enum RequestItemType
+    {
         Item,
         Weapon
     }
-    
-    public enum RewardItemType {
+
+    public enum RewardItemType
+    {
         Item,
         Weapon
     }
@@ -33,24 +44,30 @@ namespace BackendData.Chart.Quest {
     //===============================================================
     // Quest 차트의 각 row 데이터 클래스
     //===============================================================
-    public class Item {
+    public class Item
+    {
 
-        public class RewardStatClass {
+        public class RewardStatClass
+        {
             public float Exp { get; private set; }
             public float Money { get; private set; }
-
-            public RewardStatClass(float exp, float money) {
+            public float Jewel { get; private set; }
+            public RewardStatClass(float exp, float money)
+            {
                 Exp = exp;
                 Money = money;
             }
         }
 
-        public class RequestItemClass {
+        public class RequestItemClass
+        {
             public RequestItemType RequestItemType { get; private set; }
             public int Id { get; private set; }
 
-            public RequestItemClass(string type, int id) {
-                if (!Enum.TryParse<RequestItemType>(type, out var requestItemType)) {
+            public RequestItemClass(string type, int id)
+            {
+                if (!Enum.TryParse<RequestItemType>(type, out var requestItemType))
+                {
                     throw new Exception("지정되지 않은 RequestItemTypeEnum 입니다.");
                 }
 
@@ -59,14 +76,17 @@ namespace BackendData.Chart.Quest {
             }
         }
 
-        public class RewardItemClass {
+        public class RewardItemClass
+        {
 
             public RewardItemType RewardItemType { get; private set; }
             public int Id { get; private set; }
             public float Count { get; private set; }
 
-            public RewardItemClass(string type, int id, float count) {
-                if (!Enum.TryParse<RewardItemType>(type, out var rewardItemType)) {
+            public RewardItemClass(string type, int id, float count)
+            {
+                if (!Enum.TryParse<RewardItemType>(type, out var rewardItemType))
+                {
                     throw new Exception("지정되지 않은 RewardItemType 입니다.");
                 }
 
@@ -88,31 +108,37 @@ namespace BackendData.Chart.Quest {
         public RequestItemClass RequestItem { get; private set; }
         public Dictionary<string, string> ExtraData { get; private set; }
 
-        public Item(JsonData json) {
+        public Item(JsonData json)
+        {
             QuestID = int.Parse(json["QuestID"].ToString());
             QuestContent = json["QuestContent"].ToString();
             RequestCount = float.Parse(json["RequestCount"].ToString());
 
-            if (!Enum.TryParse<QuestType>(json["QuestType"].ToString(), out var questType)) {
+            if (!Enum.TryParse<QuestType>(json["QuestType"].ToString(), out var questType))
+            {
                 throw new Exception($"Q{QuestID} - 지정되지 않은 QuestType 입니다.");
             }
 
             this.QuestType = questType;
 
-            if (!Enum.TryParse<QuestRepeatType>(json["QuestRepeatType"].ToString(), out var questRepeatType)) {
+            if (!Enum.TryParse<QuestRepeatType>(json["QuestRepeatType"].ToString(), out var questRepeatType))
+            {
                 throw new Exception($"Q{QuestID} - 지정되지 않은 QuestRepeatTypeEnum 입니다.");
             }
 
             QuestRepeatType = questRepeatType;
 
-            try {
+            try
+            {
                 string rewardStatString = json["RewardStat"].ToString();
 
-                if (string.IsNullOrEmpty(rewardStatString) == false) {
+                if (string.IsNullOrEmpty(rewardStatString) == false)
+                {
                     RewardStat = new List<RewardStatClass>();
                     JsonData rewardStatJson = JsonMapper.ToObject(rewardStatString);
 
-                    for (int i = 0; i < rewardStatJson.Count; i++) {
+                    for (int i = 0; i < rewardStatJson.Count; i++)
+                    {
                         float exp = float.Parse(rewardStatJson[i]["Exp"].ToString());
                         float money = float.Parse(rewardStatJson[i]["Money"].ToString());
 
@@ -120,18 +146,22 @@ namespace BackendData.Chart.Quest {
                     }
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new Exception($"{GetType().Name} : {MethodBase.GetCurrentMethod()?.ToString()} : {e.ToString()}");
             }
 
-            try {
+            try
+            {
                 string rewardItemString = json["RewardItem"].ToString();
 
-                if (string.IsNullOrEmpty(rewardItemString) == false) {
+                if (string.IsNullOrEmpty(rewardItemString) == false)
+                {
                     RewardItem = new List<RewardItemClass>();
                     JsonData rewardStatJson = JsonMapper.ToObject(rewardItemString);
 
-                    foreach (JsonData tempJson in rewardStatJson) {
+                    foreach (JsonData tempJson in rewardStatJson)
+                    {
                         string type = tempJson["Type"].ToString();
                         int id = int.Parse(tempJson["Id"].ToString());
                         float count = float.Parse(tempJson["Count"].ToString());
@@ -140,20 +170,24 @@ namespace BackendData.Chart.Quest {
                     }
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new Exception($"Q{QuestID} - RewardItem 파싱 도중 에러가 발생했습니다.\n{e.StackTrace}");
             }
 
-            try {
+            try
+            {
                 string requestItemString = json["RequestItem"].ToString();
 
-                if (string.IsNullOrEmpty(requestItemString) == false) {
+                if (string.IsNullOrEmpty(requestItemString) == false)
+                {
                     JsonData rewardStatJson = JsonMapper.ToObject(requestItemString);
                     RequestItem = new RequestItemClass(rewardStatJson[0]["Type"].ToString(),
                         int.Parse(rewardStatJson[0]["Id"].ToString()));
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new Exception($"Q{QuestID} - RequestItem 파싱 도중 에러가 발생했습니다.\n{e.StackTrace}");
             }
         }

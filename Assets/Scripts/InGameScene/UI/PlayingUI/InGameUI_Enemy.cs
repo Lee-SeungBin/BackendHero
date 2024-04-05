@@ -1,49 +1,65 @@
 // Copyright 2013-2022 AFI, INC. All rights reserved.
 
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace InGameScene.UI {
-    
+namespace InGameScene.UI
+{
+
     //===========================================================
     // 몬스터 HP바, 이름등의 적 관련 UI
     //===========================================================
-    public class InGameUI_Enemy : MonoBehaviour {
+    public class InGameUI_Enemy : MonoBehaviour
+    {
         [SerializeField] private TMP_Text _enemyNameText;
         [SerializeField] private Slider _enemyHpSlider;
         [SerializeField] private TMP_Text _enemyHpText;
+        public List<GameObject> ActiveEnemyObjects = new List<GameObject>();
+        public List<GameObject> DeActiveEnemyObjects = new List<GameObject>();
 
         private float _maxHp;
         private float _currentHp;
 
-        private void Start() {
+        private void Start()
+        {
             // hp바 비활성화
-            ShowUI(false);
+            //ShowUI(false);
         }
-
+        public bool CheckHaveEnemy()
+        {
+            if (ActiveEnemyObjects.Count > 0)
+            {
+                return true;
+            }
+            return false;
+        }
         // 적 정보 갱신
-        public void SetEnemyInfo(string enemyName, float maxHp) {
-            _enemyNameText.text = enemyName;
+        //public void SetEnemyInfo(string enemyName, float maxHp)
+        //{
+        //    _enemyNameText.text = enemyName;
 
-            _maxHp = maxHp;
-            _currentHp = maxHp;
-            _enemyHpSlider.maxValue = _maxHp;
+        //    _maxHp = maxHp;
+        //    _currentHp = maxHp;
+        //    _enemyHpSlider.maxValue = _maxHp;
 
-            SetCurrentHp(_currentHp);
-        }
+        //    SetCurrentHp(_currentHp);
+        //}
 
         // 적 HP 갱신
-        public void SetCurrentHp(float currentHp) {
-            _currentHp = currentHp;
+        //public void SetCurrentHp(float currentHp)
+        //{
+        //    _currentHp = currentHp;
 
-            _enemyHpText.text = string.Format("{0:0.##} / {1:0}", _currentHp, _maxHp);
-            _enemyHpSlider.value = _currentHp;
-        }
+        //    _enemyHpText.text = string.Format("{0:0.##} / {1:0}", _currentHp, _maxHp);
+        //    _enemyHpSlider.value = _currentHp;
+        //}
 
         // HP바 활성화 여부
-        public void ShowUI(bool isShow) {
-            gameObject.SetActive(isShow);
-        }
+        //public void ShowUI(bool isShow)
+        //{
+        //    gameObject.SetActive(isShow);
+        //}
     }
 }

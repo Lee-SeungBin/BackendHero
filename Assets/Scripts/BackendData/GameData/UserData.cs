@@ -31,6 +31,7 @@ namespace BackendData.GameData
         public float Money { get; private set; }
         public string LastLoginTime { get; private set; }
         public int MainQuestCount { get; private set; }
+        public int StageCount { get; private set; }
         public int GrowthAtkCount { get; private set; }
         public int GrowthHpCount { get; private set; }
         public int GrowthHpRecorveryCount { get; private set; }
@@ -81,6 +82,8 @@ namespace BackendData.GameData
             GrowthAtkCount = int.Parse(gameDataJson["GrowthAtkCount"].ToString());
             GrowthHpCount = int.Parse(gameDataJson["GrowthHpCount"].ToString());
             GrowthHpRecorveryCount = int.Parse(gameDataJson["GrowthHpRecorveryCount"].ToString());
+            MainQuestCount = int.Parse(gameDataJson["MainQuestCount"].ToString());
+            StageCount = int.Parse(gameDataJson["StageCount"].ToString());
             Exp = float.Parse(gameDataJson["Exp"].ToString());
             MaxExp = float.Parse(gameDataJson["MaxExp"].ToString());
             Money = float.Parse(gameDataJson["Money"].ToString());
@@ -121,6 +124,8 @@ namespace BackendData.GameData
             param.Add("GrowthAtkCount", GrowthAtkCount);
             param.Add("GrowthHpCount", GrowthHpCount);
             param.Add("GrowthHpRecorveryCount", GrowthHpRecorveryCount);
+            param.Add("MainQuestCount", MainQuestCount);
+            param.Add("StageCount", StageCount);
             param.Add("Money", Money);
             param.Add("Exp", Exp);
             param.Add("MaxExp", MaxExp);
@@ -194,25 +199,14 @@ namespace BackendData.GameData
             }
         }
 
-        public String GetGrowthStatString(int count, GrowthType growthType)
+        public void UpdateStageCount()
         {
-            string GrowthStat = string.Empty;
-            switch (growthType)
+            if (StageCount == StaticManager.Backend.Chart.Stage.List.Count)
             {
-                case GrowthType.Atk:
-                    GrowthStat = (Atk + GrowthAtk * count).ToString();
-                    break;
-                case GrowthType.Hp:
-                    GrowthHpCount += count;
-                    break;
-                case GrowthType.HpRecorvery:
-                    HpRecorvery += GrowthHpRecorvery * count;
-                    GrowthHpRecorveryCount += count;
-                    break;
-                default:
-                    break;
+                return;
             }
-            return GrowthStat;
+            IsChangedData = true;
+            StageCount++;
         }
 
         // 레벨업하는 함수

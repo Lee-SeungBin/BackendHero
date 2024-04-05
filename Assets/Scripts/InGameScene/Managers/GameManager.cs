@@ -69,7 +69,21 @@ namespace InGameScene
             }
             catch (Exception e)
             {
-                throw new Exception($"UpdateUserData({count}, {growthType}) 중 에러가 발생하였습니다\n{e}");
+                throw new Exception($"UpdateUserGrowthData({count}, {growthType}) 중 에러가 발생하였습니다\n{e}");
+            }
+        }
+
+        public void UpdateUserStageData()
+        {
+            try
+            {
+                StaticManager.Backend.GameData.UserData.UpdateStageCount();
+
+                _uiManager.StageUI.ShowTitleStage(StaticManager.Backend.GameData.UserData.StageCount.ToString());
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"UpdateUserStageData 중 에러가 발생하였습니다\n{e}");
             }
         }
 

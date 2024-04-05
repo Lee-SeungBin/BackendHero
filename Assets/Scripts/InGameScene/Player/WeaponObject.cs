@@ -14,7 +14,7 @@ namespace InGameScene
 
         private Transform _gunSpriteTransform; // 무기의 이미지 Transform
 
-        private float _reloadingTime = 3; // 리로딩 시간
+        private float _reloadingTime = 0.1f; // 리로딩 시간
 
         private GameObject _bulletObject; // 발사할 총알 객체
 
