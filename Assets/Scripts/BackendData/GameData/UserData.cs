@@ -1,6 +1,7 @@
 ﻿// Copyright 2013-2022 AFI, INC. All rights reserved.
 
 using BackEnd;
+using InGameScene;
 using LitJson;
 using System;
 using System.Globalization;
@@ -69,6 +70,7 @@ namespace BackendData.GameData
             GrowthHpRecorveryCount = 0;
             Money = 10000;
             MaxExp = 100;
+            Jewel = 0;
         }
 
         // Backend.GameData.GetMyData 호출 이후 리턴된 값을 파싱하여 캐싱하는 함수
@@ -127,6 +129,7 @@ namespace BackendData.GameData
             param.Add("MainQuestCount", MainQuestCount);
             param.Add("StageCount", StageCount);
             param.Add("Money", Money);
+            param.Add("Jewel", Jewel);
             param.Add("Exp", Exp);
             param.Add("MaxExp", MaxExp);
             param.Add("LastLoginTime", string.Format("{0:MM-DD:HH:mm:ss.fffZ}", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
@@ -189,6 +192,7 @@ namespace BackendData.GameData
                 case GrowthType.Hp:
                     Hp += GrowthHp * count;
                     GrowthHpCount += count;
+                    Managers.Process.GrowthPlayerHP(GrowthHp * count);
                     break;
                 case GrowthType.HpRecorvery:
                     HpRecorvery += GrowthHpRecorvery * count;

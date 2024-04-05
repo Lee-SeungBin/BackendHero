@@ -79,7 +79,7 @@ namespace InGameScene
             {
                 StaticManager.Backend.GameData.UserData.UpdateStageCount();
 
-                _uiManager.StageUI.ShowTitleStage(StaticManager.Backend.GameData.UserData.StageCount.ToString());
+                //_uiManager.StageUI.ShowTitleStage(StaticManager.Backend.GameData.UserData.StageCount.ToString());
             }
             catch (Exception e)
             {

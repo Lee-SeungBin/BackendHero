@@ -5,23 +5,29 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace InGameScene.UI {
+namespace InGameScene.UI
+{
     //===========================================================
     // 유저의 레벨, 경험치, 이름을 알려주는 UI
     //===========================================================
-    public class InGameUI_User : MonoBehaviour {
+    public class InGameUI_User : MonoBehaviour
+    {
         [SerializeField] private TMP_Text _NickNameText;
         [SerializeField] private Slider _ExpSlider;
+        [SerializeField] private Slider _HpSlider;
 
         [SerializeField] private TMP_Text _levelText;
         [SerializeField] private TMP_Text _moneyText;
+        [SerializeField] private TMP_Text _jewelText;
 
-        public void Init() {
+        public void Init()
+        {
             UpdateUI();
         }
 
         // 현재 UserData로 UI를 업데이트
-        public void UpdateUI() {
+        public void UpdateUI()
+        {
             _NickNameText.text = Backend.UserNickName;
 
             _ExpSlider.maxValue = StaticManager.Backend.GameData.UserData.MaxExp;
@@ -29,6 +35,7 @@ namespace InGameScene.UI {
 
             _levelText.text = StaticManager.Backend.GameData.UserData.Level.ToString();
             _moneyText.text = StaticManager.Backend.GameData.UserData.Money.ToString();
+            _jewelText.text = StaticManager.Backend.GameData.UserData.Jewel.ToString();
         }
     }
 

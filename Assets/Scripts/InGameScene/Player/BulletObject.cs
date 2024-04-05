@@ -36,18 +36,31 @@ namespace InGameScene
             return _atk;
         }
 
-        // 총알이 맞을 경우 해당 총알 객체 파괴
-        private void OnCollisionEnter2D(Collision2D col)
+        private void OnTriggerEnter2D(Collider2D collision)
         {
-            if (col.transform.CompareTag("BulletDestroyer"))
+            if (collision.transform.CompareTag("BulletDestroyer"))
             {
                 Destroy(this.gameObject);
             }
 
-            if (col.transform.CompareTag("Enemy"))
+            if (collision.transform.CompareTag("Enemy"))
             {
                 Destroy(this.gameObject);
             }
         }
+
+        // 총알이 맞을 경우 해당 총알 객체 파괴
+        //private void OnCollisionEnter2D(Collision2D col)
+        //{
+        //    if (col.transform.CompareTag("BulletDestroyer"))
+        //    {
+        //        Destroy(this.gameObject);
+        //    }
+
+        //    if (col.transform.CompareTag("Enemy"))
+        //    {
+        //        Destroy(this.gameObject);
+        //    }
+        //}
     }
 }

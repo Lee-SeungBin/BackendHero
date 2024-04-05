@@ -103,8 +103,32 @@ namespace InGameScene
         private void StartNextStage()
         {
             _player.SetMove(Player.MoveState.MoveToAttack);
-            _uiManager.StageUI.ShowTitleStage(StaticManager.Backend.Chart.Stage.List[_currentStageNum].StageNumber.ToString());
+            _uiManager.StageUI.ShowTitleStage(StaticManager.Backend.Chart.Stage.List[_currentStageNum].StageNumber.ToString(),
+                StaticManager.Backend.Chart.Stage.List[_currentStageNum].StageName);
+            _player.SetPlayerHpUpdate(StaticManager.Backend.GameData.UserData.Hp, StaticManager.Backend.GameData.UserData.Hp);
             CoroutineRunner.instance.StartCoroutine(CreateEnemy(3f));
+        }
+
+        private void ReStartStage()
+        {
+            DeleteEnemy();
+            _player.SetNewEnemy(null);
+            StaticManager.UI.FadeUI.FadeStart(FadeUI.FadeType.ChangeToBlack,
+                () => StaticManager.UI.FadeUI.FadeStart(FadeUI.FadeType.ChangeToTransparent,
+                    StartNextStage));
+        }
+
+        private void DeleteEnemy()
+        {
+            GameObject enemyObject;
+            int ListSize = _uiManager.EnemyUI.ActiveEnemyObjects.Count;
+            for (int i = 0; i < ListSize; i++)
+            {
+                enemyObject = _uiManager.EnemyUI.ActiveEnemyObjects[0];
+                _uiManager.EnemyUI.ActiveEnemyObjects.RemoveAt(0);
+                _uiManager.EnemyUI.DeActiveEnemyObjects.Add(enemyObject);
+                enemyObject.SetActive(false);
+            }
         }
 
         // 적을 생성하는 함수
@@ -117,7 +141,7 @@ namespace InGameScene
             {
                 BackendData.Chart.Stage.Item.EnemyInfo enemyInfo = StaticManager.Backend.Chart.Stage.List[_currentStageNum].EnemyInfoList[i];
                 Vector3 enemyRespawnPosition = new Vector3(4, UnityEngine.Random.Range(0, 3f), 0);
-                Vector3 enemyStayPosition = new Vector3(_player.transform.position.x + 2f, _player.transform.position.y, 0);
+                Vector3 enemyStayPosition = new Vector3(_player.transform.position.x + 2f, _player.transform.position.y + Random.Range(-2f, 2f), 0);
 
                 // 적 차트정보에서 데이터 불러오기
                 BackendData.Chart.Enemy.Item chartenemyInfo =
@@ -152,6 +176,27 @@ namespace InGameScene
         {
             _player.SetNewEnemy(_uiManager);
         }
+
+        public void GrowthPlayerHP(float value)
+        {
+            float growthHp = _player.PlayerHp + value;
+            _player.SetPlayerHpUpdate(growthHp, StaticManager.Backend.GameData.UserData.Hp);
+        }
+
+        public void UpdatePlayerHP(float damge, float maxHp)
+        {
+            float currentHp = _player.PlayerHp - damge;
+            _player.SetPlayerHpUpdate(currentHp, maxHp);
+            if (currentHp <= 0)
+            {
+                ReStartStage();
+            }
+            else
+            {
+                _player.SetPlayerHpDamage(damge);
+            }
+        }
+
         // 현재 적 상태를 업데이트 해주는 함수
         // 적 객체에서 해당 클래스로 호출한다.
         // 적이 죽을때마다 ui 및 데이터를 업데이트 해주는 기능을 담당하고 있다.

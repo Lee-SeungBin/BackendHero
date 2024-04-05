@@ -11,13 +11,14 @@ namespace InGameScene.UI
     public class InGameUI_Stage : MonoBehaviour
     {
         [SerializeField] private GameObject _titleStageText;
-        [SerializeField] private TMP_Text _stageText;
+        [SerializeField] private TMP_Text _stageNameText;
         //private float _titleStateTextMoveSpeed = 400.0f;
 
         // 현재 스테이지 보여주는 코루틴 함수 시작하는 함수
-        public void ShowTitleStage(string stageNumber)
+        public void ShowTitleStage(string stageNumber, string stageName)
         {
             _titleStageText.GetComponentInChildren<TMP_Text>().text = $"스테이지 {stageNumber}";
+            _stageNameText.text = stageName;
             //StartCoroutine(UpdownTitleInGameUI_Stage());
         }
 

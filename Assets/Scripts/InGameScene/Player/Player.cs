@@ -1,7 +1,10 @@
 // Copyright 2013-2022 AFI, INC. All rights reserved.
 
 using System;
+using System.Collections;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace InGameScene
 {
@@ -21,7 +24,7 @@ namespace InGameScene
         private MoveState _moveState = MoveState.None;
 
         private float _moveSpeed = 10f; // 이동속도
-
+        public float PlayerHp;
         // 이동 후 동작
         public delegate void PlayerAfterMove();
         private PlayerAfterMove _playerAfterMove;
@@ -29,11 +32,19 @@ namespace InGameScene
         private GameObject _bulletGameObject; // 총알 Prefab
         private WeaponObject[] _weaponArray; // 들고있는 총의 배열 
 
+        [SerializeField] private Slider PlayerHpBar;
+        [SerializeField] private TMP_Text PlayerHpText;
+        [SerializeField] private TMP_Text PlayerDamageText;
+
+        private Coroutine PlayerDamageCoroutine;
+
         public void Init(GameObject bulletPrefab)
         {
             _weaponArray = GetComponentsInChildren<WeaponObject>();
             _bulletGameObject = bulletPrefab;
             SetWeapon();
+            PlayerHp = StaticManager.Backend.GameData.UserData.Hp;
+            SetPlayerHpUpdate(PlayerHp, PlayerHp);
         }
 
         // 총의 방향을 지정할 새로운 적의 위치 지정
@@ -41,15 +52,19 @@ namespace InGameScene
         {
             float MinDistance = Mathf.Infinity;
             EnemyObject newEnemy = null;
-            foreach (var Enemy in _uiManager.EnemyUI.ActiveEnemyObjects)
+            if (_uiManager != null)
             {
-                float Distance = Vector3.Distance(transform.position, Enemy.transform.position);
-                if (Distance < MinDistance)
+                foreach (var Enemy in _uiManager.EnemyUI.ActiveEnemyObjects)
                 {
-                    MinDistance = Distance;
-                    newEnemy = Enemy.GetComponent<EnemyObject>();
+                    float Distance = Vector3.Distance(transform.position, Enemy.transform.position);
+                    if (Distance < MinDistance)
+                    {
+                        MinDistance = Distance;
+                        newEnemy = Enemy.GetComponent<EnemyObject>();
+                    }
                 }
             }
+
             foreach (var gun in _weaponArray)
             {
                 if (gun.enabled)
@@ -59,7 +74,40 @@ namespace InGameScene
             }
         }
 
-        //  
+        public void SetPlayerHpUpdate(float currentHp, float maxHp)
+        {
+            if (currentHp < 0)
+            {
+                currentHp = 0;
+            }
+            PlayerHp = currentHp;
+            PlayerHpBar.maxValue = maxHp;
+            PlayerHpBar.value = PlayerHp;
+            PlayerHpText.text = PlayerHp.ToString();
+        }
+
+        public void SetPlayerHpDamage(float damage)
+        {
+            if (PlayerDamageCoroutine == null)
+            {
+                PlayerDamageCoroutine = StartCoroutine(PlayerDamageActive(1f, damage));
+            }
+            else
+            {
+                StopCoroutine(PlayerDamageCoroutine);
+                PlayerDamageCoroutine = StartCoroutine(PlayerDamageActive(1f, damage));
+            }
+        }
+        private IEnumerator PlayerDamageActive(float sec, float damage)
+        {
+            PlayerDamageText.text = damage.ToString();
+            PlayerDamageText.gameObject.SetActive(true);
+            yield return new WaitForSeconds(sec);
+
+            PlayerDamageText.gameObject.SetActive(false);
+            PlayerDamageCoroutine = null;
+        }
+
         void Update()
         {
             // MoveState가 None이 아닌 다른 상태라면 목적지로 이동
@@ -81,7 +129,7 @@ namespace InGameScene
                     if (_moveState == MoveState.MoveToNextStage)
                     {
                         //다시 원래자리
-                        transform.localPosition = new Vector3(-4, 1.7f, 0);
+                        transform.localPosition = new Vector3(-8f, 0, 0);
                     }
 
                     // 이동이 완료될 경우 값 초기화
@@ -101,10 +149,10 @@ namespace InGameScene
                 case MoveState.None: // 가만히 있을 경우
                     break;
                 case MoveState.MoveToAttack: // 공격을 위해 이동할경우(왼쪽 맨끝 -> 중간)
-                    _destination = new Vector3(-1.5f, 1.7f, 0);
+                    _destination = new Vector3(-6.5f, 0, 0);
                     break;
                 case MoveState.MoveToNextStage: // 적을 처치하고 다음 스테이지로 넘어갈 경우(중간 -> 오른쪽 끝)
-                    _destination = new Vector3(4f, 1.7f, 0);
+                    _destination = new Vector3(8f, 0f, 0);
                     break;
             }
 

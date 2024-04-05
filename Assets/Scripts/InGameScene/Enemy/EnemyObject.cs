@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -17,22 +18,27 @@ namespace InGameScene
         private Vector3 _stayPosition;
 
         [SerializeField] private Slider HpBar;
+        [SerializeField] private TMP_Text DamgeText;
 
         public string Name { get; private set; }
         public float MaxHp { get; private set; }
 
         public float Hp { get; private set; }
+        public float Atk { get; private set; }
         public float Money { get; private set; }
         public float Exp { get; private set; }
 
-        private const float _moveSpeed = 10f;
+        private const float _moveSpeed = 5f;
+        private const float AttackDelay = 3f;
+        private float CurrentTime = 0f;
+
+        private Coroutine DamageTextCoroutine;
 
         // 적의 상태
         public enum EnemyState
         {
-            Init,
             Trace,
-            Atack,
+            Attack,
             Dead
         }
 
@@ -43,13 +49,10 @@ namespace InGameScene
         {
             switch (CurrentEnemyState)
             {
-                case EnemyState.Init:
-                    InitUpdate();
-                    break;
                 case EnemyState.Trace:
                     TraceUpdate();
                     break;
-                case EnemyState.Atack:
+                case EnemyState.Attack:
                     AttackUpdate();
                     break;
                 case EnemyState.Dead:
@@ -62,7 +65,7 @@ namespace InGameScene
         {
             transform.localPosition =
                 Vector3.MoveTowards(transform.localPosition, _stayPosition, _moveSpeed * Time.deltaTime);
-            HpBar.gameObject.SetActive(true);
+
             if (transform.localPosition.Equals(_stayPosition))
             {
                 Debug.Log("적 초기화 완료");
@@ -75,13 +78,28 @@ namespace InGameScene
         //지정된 좌표로 오고 죽을때까지 호출되는 함수.
         void TraceUpdate()
         {
+            HpBar.gameObject.SetActive(true);
             transform.localPosition =
                 Vector3.MoveTowards(transform.localPosition, _stayPosition, _moveSpeed * Time.deltaTime);
+
+            if (transform.localPosition.Equals(_stayPosition))
+            {
+                Debug.Log("적 공격 시작");
+                CurrentEnemyState = EnemyState.Attack;
+            }
         }
 
         void AttackUpdate()
         {
+            CurrentTime += Time.deltaTime;
 
+            if (CurrentTime > AttackDelay)
+            {
+                //데미지를 입는 함수 추가
+                Managers.Process.UpdatePlayerHP(Atk, StaticManager.Backend.GameData.UserData.Hp);
+                Debug.Log("데미지" + Atk);
+                CurrentTime = 0;
+            }
         }
 
         //죽고나서 날라가는 함수
@@ -99,13 +117,14 @@ namespace InGameScene
             Name = enemyInfo.EnemyName;
             MaxHp = enemyInfo.Hp * multiStat;
             Hp = MaxHp;
+            Atk = enemyInfo.Atk * multiStat;
             Money = enemyInfo.Money * multiStat;
             Exp = enemyInfo.Exp * multiStat;
 
             gameObject.GetComponent<SpriteRenderer>().sprite = _currentEnemyChartItem.EnemySprite;
 
             _stayPosition = stayPosition;
-            CurrentEnemyState = EnemyState.Init;
+            CurrentEnemyState = EnemyState.Trace;
             _rigidbody2D = GetComponent<Rigidbody2D>();
             HpBar.maxValue = MaxHp;
             SetCurrentHp(Hp);
@@ -128,8 +147,7 @@ namespace InGameScene
         {
             HpBar.value = currentHp;
         }
-
-        private void OnCollisionEnter2D(Collision2D col)
+        private void OnTriggerEnter2D(Collider2D collision)
         {
             //if (CurrentEnemyState != EnemyState.Trace)
             //{
@@ -137,29 +155,44 @@ namespace InGameScene
             //}
 
             // 만약 화면 밖 회색 박스와 부딪히면 소멸
-            if (col.transform.CompareTag("BulletDestroyer"))
+            if (collision.transform.CompareTag("BulletDestroyer"))
             {
                 Dead();
                 //Destroy(gameObject);
             }
 
             // 총알에 맞을 경우
-            if (col.transform.CompareTag("Bullet"))
+            if (collision.transform.CompareTag("Bullet"))
             {
-                float damage = col.gameObject.GetComponent<BulletObject>().GetDamage();
+                float damage = collision.gameObject.GetComponent<BulletObject>().GetDamage();
                 Hp -= damage;
-                Debug.Log(Hp);
                 // Hp가 0이 될 경우
                 if (Hp <= 0)
                 {
                     Dead();
                     Managers.Process.UpdateEnemyStatus(this);
                 }
-
+                else
+                {
+                    if (DamageTextCoroutine == null)
+                    {
+                        DamageTextCoroutine = StartCoroutine(ActiveDamageText(1f, damage));
+                    }
+                    else
+                    {
+                        StopCoroutine(DamageTextCoroutine);
+                        DamageTextCoroutine = StartCoroutine(ActiveDamageText(1f, damage));
+                    }
+                    //StartCoroutine(ActiveDamageText(2f, damage));
+                }
                 // 맞을 때마다 현재 자신의 hp 정보를 업데이트
                 Managers.Process.UpdateNewEnemy();
                 SetCurrentHp(Hp);
             }
+        }
+        private void OnCollisionEnter2D(Collision2D col)
+        {
+
         }
 
         // 죽었을때 호출되는 함수
@@ -171,9 +204,10 @@ namespace InGameScene
 
             // 오른쪽 위로 날라감
             _rigidbody2D.AddForce(new Vector2(200, 200), ForceMode2D.Force);
-            gameObject.GetComponent<BoxCollider2D>().isTrigger = true;
+            //gameObject.GetComponent<BoxCollider2D>().isTrigger = true;
 
             //Destroy(gameObject, 5);
+
             StartCoroutine(ActiveFalse(2f));
         }
 
@@ -182,9 +216,19 @@ namespace InGameScene
             yield return new WaitForSeconds(sec);
 
             _rigidbody2D.velocity = Vector2.zero;
-            gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
+            //gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
             gameObject.SetActive(false);
             gameObject.transform.rotation = Quaternion.identity;
+        }
+
+        private IEnumerator ActiveDamageText(float sec, float damage)
+        {
+            DamgeText.text = damage.ToString();
+            DamgeText.gameObject.SetActive(true);
+
+            yield return new WaitForSeconds(sec);
+            DamageTextCoroutine = null;
+            DamgeText.gameObject.SetActive(false);
         }
 
         // 죽을 경우 일정 확률로 아이템을 떨어트리는 함수
