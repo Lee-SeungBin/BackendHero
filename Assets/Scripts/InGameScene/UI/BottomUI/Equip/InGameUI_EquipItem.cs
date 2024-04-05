@@ -4,11 +4,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace InGameScene.UI {
+namespace InGameScene.UI
+{
     //===========================================================
     // 장비 UI에 사용되는 아이템 클래스
     //===========================================================
-    public class InGameUI_EquipItem : MonoBehaviour {
+    public class InGameUI_EquipItem : MonoBehaviour
+    {
         [SerializeField] private Image _image;
         [SerializeField] private TMP_Text _weaponName;
         [SerializeField] private TMP_Text _weaponStat;
@@ -21,7 +23,8 @@ namespace InGameScene.UI {
         private BackendData.GameData.WeaponInventory.Item _weaponInfo;
 
         // 내 게임정보의 장비 목록에서 데이터를 불러와 적용
-        public void Init(InGameUI_Equip equipUI, Sprite sprite, BackendData.GameData.WeaponInventory.Item weaponInfo) {
+        public void Init(InGameUI_Equip equipUI, Sprite sprite, BackendData.GameData.WeaponInventory.Item weaponInfo)
+        {
             _weaponInfo = weaponInfo;
 
             _image.sprite = sprite;
@@ -43,12 +46,14 @@ namespace InGameScene.UI {
         }
 
         // 업그레이드 클릭시 호출되는 함수
-        void OnClickUpgradeButton() {
+        void OnClickUpgradeButton()
+        {
             // 장비 업그레이드 비용
             float upgradePrice = _weaponInfo.GetCurrentWeaponStat().UpgradePrice;
 
             // 업그레이드 비용이 더 높을 경우
-            if (StaticManager.Backend.GameData.UserData.Money < upgradePrice) {
+            if (StaticManager.Backend.GameData.UserData.Money < upgradePrice)
+            {
                 StaticManager.UI.AlertUI.OpenWarningUI("업그레이드 불가", "보유중인 재화가 부족합니다.");
                 return;
             }
@@ -66,16 +71,19 @@ namespace InGameScene.UI {
             _weaponStat.text = stat;
 
             // money 데이터 감소
-            InGameScene.Managers.Game.UpdateUserData(-upgradePrice, 0);
+            InGameScene.Managers.Game.UpdateUserData(-upgradePrice, 0, 0);
         }
 
         // 창착 여부를 설정하는 함수
-        public void SetButtonEquiped(bool isEquip) {
-            if (isEquip) {
+        public void SetButtonEquiped(bool isEquip)
+        {
+            if (isEquip)
+            {
                 _weaponEquipButton.GetComponentInChildren<TMP_Text>().text = "장착됨";
                 _weaponEquipButton.GetComponent<Image>().color = Color.gray;
             }
-            else {
+            else
+            {
                 _weaponEquipButton.GetComponentInChildren<TMP_Text>().text = "장착";
                 _weaponEquipButton.GetComponent<Image>().color = Color.white;
             }

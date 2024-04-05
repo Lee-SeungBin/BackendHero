@@ -9,24 +9,23 @@ namespace BackendData.Chart.Quest
 {
     public enum QuestType
     {
+        DefeatEnemy_Main,
+        AtkUp,
+        HpUp,
+        HpRecorveryUp,
+        StageClear,
         LevelUp,
         UseGold,
         DefeatEnemy,
-        GetItem,
-        //DefeatEnemy_Main,
-        //AtkUp,
-        //HpUp,
-        //HpRecorveryUp,
-        //StageClear,
     }
 
     public enum QuestRepeatType
     {
+        Main,
         Once,
         Day,
         Week,
         Month,
-        //Main,
     }
 
     public enum RequestItemType
@@ -52,10 +51,11 @@ namespace BackendData.Chart.Quest
             public float Exp { get; private set; }
             public float Money { get; private set; }
             public float Jewel { get; private set; }
-            public RewardStatClass(float exp, float money)
+            public RewardStatClass(float exp, float money, float jewel)
             {
                 Exp = exp;
                 Money = money;
+                Jewel = jewel;
             }
         }
 
@@ -141,8 +141,8 @@ namespace BackendData.Chart.Quest
                     {
                         float exp = float.Parse(rewardStatJson[i]["Exp"].ToString());
                         float money = float.Parse(rewardStatJson[i]["Money"].ToString());
-
-                        RewardStat.Add(new RewardStatClass(exp, money));
+                        float jewel = float.Parse(rewardStatJson[i]["Jewel"].ToString());
+                        RewardStat.Add(new RewardStatClass(exp, money, jewel));
                     }
                 }
             }

@@ -4,11 +4,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace InGameScene.UI {
+namespace InGameScene.UI
+{
     //===========================================================
     // 무기 상점 UI의 아이템 클래스
     //===========================================================
-    public class InGameUI_WeaponShopItem : MonoBehaviour {
+    public class InGameUI_WeaponShopItem : MonoBehaviour
+    {
         [SerializeField] private Image _image;
         [SerializeField] private TMP_Text _weaponName;
         [SerializeField] private TMP_Text _weaponNormalStat;
@@ -18,7 +20,8 @@ namespace InGameScene.UI {
         private BackendData.Chart.Weapon.Item _weaponInfo;
 
         // 무기 차트의 정보에 따라 초기화
-        public void Init(Sprite sprite, BackendData.Chart.Weapon.Item weaponInfo) {
+        public void Init(Sprite sprite, BackendData.Chart.Weapon.Item weaponInfo)
+        {
             _weaponInfo = weaponInfo;
 
             _image.sprite = sprite;
@@ -37,13 +40,15 @@ namespace InGameScene.UI {
 
         // 구매 버튼 클릭시 현재 자금 무기를 비교하여 구매 여부 판단
         // 구매 가능 시, UserData를 뺄셈하고 무기 지급.
-        void BuyButton() {
-            if (StaticManager.Backend.GameData.UserData.Money < _weaponInfo.Price) {
+        void BuyButton()
+        {
+            if (StaticManager.Backend.GameData.UserData.Money < _weaponInfo.Price)
+            {
                 StaticManager.UI.AlertUI.OpenWarningUI("구매 불가", "현재 자금이 부족하여 해당 아이템을 구매할 수 없습니다");
                 return;
             }
 
-            InGameScene.Managers.Game.UpdateUserData(-_weaponInfo.Price, 0);
+            InGameScene.Managers.Game.UpdateUserData(-_weaponInfo.Price, 0, 0);
             StaticManager.UI.AlertUI.OpenAlertUI("구매 완료", _weaponInfo.WeaponName + "이(가) 구매 완료되었습니다.");
             InGameScene.Managers.Game.UpdateWeaponInventory(_weaponInfo.WeaponID);
         }

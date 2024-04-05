@@ -1,5 +1,6 @@
 ﻿// Copyright 2013-2022 AFI, INC. All rights reserved.
 
+using BackendData.Chart.Quest;
 using InGameScene.UI;
 using System.Collections;
 using Unity.VisualScripting;
@@ -202,41 +203,15 @@ namespace InGameScene
         // 적이 죽을때마다 ui 및 데이터를 업데이트 해주는 기능을 담당하고 있다.
         public void UpdateEnemyStatus(EnemyObject enemyItem) // 데스로 바꾸기
         {
-            //switch (enemyItem.CurrentEnemyState)
-            //{
-            //    case EnemyObject.EnemyState.Init:
-            //        _player.SetNewEnemy(_uiManager);
-            //        //_uiManager.EnemyUI.SetEnemyInfo(enemyItem.Name, enemyItem.MaxHp);
-            //        //_uiManager.EnemyUI.ShowUI(true);
-            //        break;
-            //    case EnemyObject.EnemyState.Trace:
-            //        _player.SetNewEnemy(_uiManager);
-            //        //_uiManager.EnemyUI.SetCurrentHp(enemyItem.Hp);
-            //        break;
-            //    case EnemyObject.EnemyState.Atack:
-
-            //        break;
-            //    case EnemyObject.EnemyState.Dead:
-            //        Managers.Game.UpdateUserData(enemyItem.Money, enemyItem.Exp);
-            //        StaticManager.Backend.GameData.UserData.CountDefeatEnemy();
-            //        _uiManager.BottomUI.GetUI<InGameUI_Quest>().UpdateUI(BackendData.Chart.Quest.QuestType.DefeatEnemy);
-            //        _player.SetNewEnemy(null);
-
-            //        _uiManager.EnemyUI.DeActiveEnemyObjects.Add(enemyItem.gameObject);
-            //        _uiManager.EnemyUI.ActiveEnemyObjects.Remove(enemyItem.gameObject);
-            //        _uiManager.EnemyUI.ActiveEnemyObjects.RemoveAll(item => item == null);
-
-
-            //        if (!_uiManager.EnemyUI.CheckHaveEnemy())
-            //        {
-            //            RespawnNextEnemy();
-            //        }
-
-            //        break;
-            //}
-            Managers.Game.UpdateUserData(enemyItem.Money, enemyItem.Exp);
+            Managers.Game.UpdateUserData(enemyItem.Money, enemyItem.Exp, 0);
             StaticManager.Backend.GameData.UserData.CountDefeatEnemy();
-            _uiManager.BottomUI.GetUI<InGameUI_Quest>().UpdateUI(BackendData.Chart.Quest.QuestType.DefeatEnemy);
+            InGameUI_Quest questinfo = _uiManager.BottomUI.GetUI<InGameUI_Quest>();
+            questinfo.UpdateUI(QuestType.DefeatEnemy); // 메인 퀘스트 적 처치 UI업데이트
+            if (questinfo.GetMainQuestType() == QuestType.DefeatEnemy_Main)
+            {
+                Managers.Game.UpdateUserMainDefeatEnemyData(false);
+                questinfo.UpdateUI(QuestType.DefeatEnemy_Main);
+            }
             //_player.SetNewEnemy(null);
 
             _uiManager.EnemyUI.DeActiveEnemyObjects.Add(enemyItem.gameObject);

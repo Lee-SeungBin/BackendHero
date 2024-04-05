@@ -28,7 +28,7 @@ namespace InGameScene
         public float Money { get; private set; }
         public float Exp { get; private set; }
 
-        private const float _moveSpeed = 5f;
+        private const float _moveSpeed = 0.1f;
         private const float AttackDelay = 3f;
         private float CurrentTime = 0f;
 
@@ -60,21 +60,7 @@ namespace InGameScene
                     break;
             }
         }
-        //적 생성 이후 지정된 좌표로 올때까지 호출되는 함수.
-        void InitUpdate()
-        {
-            transform.localPosition =
-                Vector3.MoveTowards(transform.localPosition, _stayPosition, _moveSpeed * Time.deltaTime);
 
-            if (transform.localPosition.Equals(_stayPosition))
-            {
-                Debug.Log("적 초기화 완료");
-
-                //Normal이 되기 전에 호출하여야합니다.
-                //Managers.Process.UpdateEnemyStatus(this);
-                CurrentEnemyState = EnemyState.Trace;
-            }
-        }
         //지정된 좌표로 오고 죽을때까지 호출되는 함수.
         void TraceUpdate()
         {
@@ -128,6 +114,7 @@ namespace InGameScene
             _rigidbody2D = GetComponent<Rigidbody2D>();
             HpBar.maxValue = MaxHp;
             SetCurrentHp(Hp);
+            DamgeText.gameObject.SetActive(false);
         }
 
         //// 적 정보 갱신

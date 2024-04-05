@@ -100,7 +100,7 @@ namespace InGameScene.UI
             }
 
             // money 데이터 감소
-            Managers.Game.UpdateUserData(-upgradePrice, 0);
+            Managers.Game.UpdateUserData(-upgradePrice, 0, 0);
             Managers.Game.UpdateUserGrowthData(UpgradeCount, growthType);
 
             // 돈이 충분할 경우, 레벨업 + 레벨 갱신 + 스텟 갱신

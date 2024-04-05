@@ -2,7 +2,6 @@
 
 using BackendData.Chart.Quest;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -20,154 +19,97 @@ namespace InGameScene.UI
         [SerializeField] private TMP_Text QuestProgressText;
         [SerializeField] private TMP_Text RewardText;
         [SerializeField] private Image RewardIcon;
-
+        [SerializeField] private Sprite[] RewardIconSprites;
         [SerializeField] private Button _requestAchieveButton;
 
         private Item _questItemInfo;
 
         // 퀘스트 타입 리턴하는 함수
-        public QuestRepeatType GetRepeatType()
+        public QuestType GetQuestType()
         {
-            return _questItemInfo.QuestRepeatType;
+            return _questItemInfo.QuestType;
         }
-
-        // 퀘스트 보상 리스트
-        private List<string> _rewardList = new();
 
         public void Init(Item questItemInfo)
         {
             _questItemInfo = questItemInfo;
 
-            QuestNumberText.text = "메인 퀘스트 - " + StaticManager.Backend.GameData.UserData.MainQuestCount.ToString();
-            QuestDetailText.text = _questItemInfo.QuestContent;
-            QuestProgressText.text = _questItemInfo.RequestCount.ToString() + "/" + "";
+            Debug.Log((StaticManager.Backend.GameData.UserData.MainQuestCount % 5 + 4) % 5 + 1);
 
-            // Exp, Money를 주는 RewardStat이 존재할 경우, 보상을 알려주는 text에 삽입
-            if (_questItemInfo.RewardStat != null)
-            {
-                foreach (var item in _questItemInfo.RewardStat)
-                {
-                    // exp가 보상일 경우
-                    if (item.Exp > 0)
-                    {
-                        _rewardList.Add($"{item.Exp} Exp");
-                    }
-                    // money가 보상일 경우
-                    if (item.Money > 0)
-                    {
-                        _rewardList.Add($"{item.Money} Gold");
-                    }
-                }
-            }
+            UpdateMainQuestUI();
 
-            // 아이템, 무기를 주는 RewardItem이 존재할 경우, 보상을 알려주는 text에 삽입
-            //if (_questItemInfo.RewardItem != null)
-            //{
-            //    foreach (var item in _questItemInfo.RewardItem)
-            //    {
-            //        switch (item.RewardItemType)
-            //        {
-            //            case RewardItemType.Item: // 보상이 아이템일 경우 아이템 이름
-            //                _rewardList.Add(StaticManager.Backend.Chart.Item.Dictionary[item.Id].ItemName);
-            //                break;
-            //            case RewardItemType.Weapon:// 보상이 무기일 경우 무기 이름
-            //                _rewardList.Add(StaticManager.Backend.Chart.Weapon.Dictionary[item.Id].WeaponName);
-            //                break;
-            //        }
-            //    }
-            //}
-
-
-            // 보상을 담은 list 전부 한줄로 표현
-            StringBuilder rewardString = new StringBuilder();
-            for (int i = 0; i < _rewardList.Count; i++)
-            {
-                if (i > 0)
-                {
-                    rewardString.Append(" | ");
-                }
-
-                rewardString.Append(_rewardList[i]);
-            }
-
-            //_questRewardText.text = rewardString.ToString();
-            //_questRequestText.text = _questItemInfo.RequestCount.ToString();
-            //_myRequestAchieveText.text = 0.ToString();
-
-            //보상 달성 시 지급하는 Achieve 함수 연결
-            _requestAchieveButton.onClick.AddListener(Achieve);
+            _requestAchieveButton.onClick.RemoveAllListeners();
+            _requestAchieveButton.onClick.AddListener(Reward);
         }
 
 
-        // 퀘스트 차트에 있는 도달 횟수가 넘었는지 확인.
-        public void UpdateUI(float count)
+        public void UpdateMainQuestUI()
         {
-            bool isAchieve = StaticManager.Backend.GameData.QuestAchievement.Dictionary[_questItemInfo.QuestID]
-                .IsAchieve;
-            if (isAchieve)
-            { // 이미 달성된 상태라면
-                //_isAchieveText.text = "완료";
-                _requestAchieveButton.onClick.RemoveAllListeners();
-                _requestAchieveButton.interactable = false;
-                _requestAchieveButton.GetComponent<Image>().color = Color.gray;
-            }
-            else
-            { // 달성이 되었다면
-                if (_questItemInfo.RequestCount <= count)
+            QuestNumberText.text = $"메인 퀘스트 - {StaticManager.Backend.GameData.UserData.MainQuestCount}";
+            QuestDetailText.text = _questItemInfo.QuestContent;
+
+            float RewardCount = 0f;
+            float CurrentCount = 0f;
+            float RequestCount = 0f;
+
+            foreach (var item in _questItemInfo.RewardStat)
+            {
+                if (item.Money > 0)
                 {
-                    //_isAchieveText.text = "달성";
-                    _requestAchieveButton.interactable = true;
-                    _requestAchieveButton.GetComponent<Image>().color = new Color32(255, 236, 144, 255);
+                    RewardIcon.sprite = RewardIconSprites[0];
+                    RewardText.text = $"{item.Money}";
+                    RewardCount = item.Money;
                 }
                 else
-                { // 아직 count가 부족하다면
-                    //_isAchieveText.text = "미달성";
-                    _requestAchieveButton.interactable = false;
-                    _requestAchieveButton.GetComponent<Image>().color = Color.gray;
+                {
+                    RewardIcon.sprite = RewardIconSprites[1];
+                    RewardText.text = $"{item.Jewel}";
+                    RewardCount = item.Jewel;
                 }
             }
 
-            // 현재 진행중인 횟수
-            //_myRequestAchieveText.text = count.ToString();
-        }
-
-
-        // 퀘스트 달성 버튼 클릭시 호출되는 함수
-        public void Achieve()
-        {
-            // 게임 데이터에서 퀘스트 달성 여부를 저장
-            StaticManager.Backend.GameData.QuestAchievement.SetAchieve(_questItemInfo.QuestID);
-
-            // 보상 지급
-            Reward();
-
-            // 퀘스트 UI를 완료로 변경하고 버튼 변경
-            //_isAchieveText.text = "완료";
-            _requestAchieveButton.onClick.RemoveAllListeners();
-            _requestAchieveButton.interactable = false;
-            _requestAchieveButton.GetComponent<Image>().color = Color.gray;
-        }
-
-        // 아이템이 있는지 확인
-        public void CheckItem(RequestItemType requestItemType, int itemId)
-        {
-
-            if (_questItemInfo.RequestItem == null)
+            switch (_questItemInfo.QuestType)
             {
-                throw new Exception("RequestItem이 비어있습니다.");
+                case QuestType.DefeatEnemy_Main:
+                    CurrentCount = StaticManager.Backend.GameData.UserData.MainDefeatEnemyCount;
+                    RequestCount = _questItemInfo.RequestCount;
+                    if (CurrentCount >= RequestCount)
+                    {
+                        CurrentCount = RequestCount;
+                    }
+                    break;
+                case QuestType.AtkUp:
+                    CurrentCount = StaticManager.Backend.GameData.UserData.GrowthAtkCount;
+                    RequestCount = _questItemInfo.RequestCount * StaticManager.Backend.GameData.UserData.MainGrowthAtkCount;
+                    break;
+                case QuestType.HpUp:
+                    CurrentCount = StaticManager.Backend.GameData.UserData.GrowthHpCount;
+                    RequestCount = _questItemInfo.RequestCount * StaticManager.Backend.GameData.UserData.MainGrowthHpCount;
+                    break;
+                case QuestType.HpRecorveryUp:
+                    CurrentCount = StaticManager.Backend.GameData.UserData.GrowthHpRecorveryCount;
+                    RequestCount = _questItemInfo.RequestCount * StaticManager.Backend.GameData.UserData.MainGrowthHpRecorveryCount;
+                    break;
+                case QuestType.StageClear:
+                    CurrentCount = StaticManager.Backend.GameData.UserData.StageCount;
+                    RequestCount = _questItemInfo.RequestCount * StaticManager.Backend.GameData.UserData.MainStageClearCount;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(_questItemInfo.QuestType), _questItemInfo.QuestType, null);
             }
 
-            // itemID를 공용으로 쓰고 있기 때문에 weapon과 item을 꼭 구별해야한다.
-            // 아이템 종류가 다르면 패스
-            if (requestItemType != _questItemInfo.RequestItem.RequestItemType)
-            {
-                return;
-            }
+            QuestProgressText.text = $"{CurrentCount} / {RequestCount}";
 
-            // 업데이트한 아이템이 존재하면 업데이트
-            if (itemId == _questItemInfo.RequestItem.Id)
+            bool isAchieve = CurrentCount >= RequestCount;
+            if (isAchieve)
             {
-                UpdateUI(1);
+                _requestAchieveButton.interactable = true;
+                _requestAchieveButton.GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
+            }
+            else
+            {
+                _requestAchieveButton.interactable = false;
+                _requestAchieveButton.GetComponent<Image>().color = new Color(0.5f, 0.5f, 0.5f, 0.5f);
             }
         }
 
@@ -179,7 +121,7 @@ namespace InGameScene.UI
                 // 차트 정보에  money, exp를 주는 rewardStat이 존재한다면
                 foreach (var item in _questItemInfo.RewardStat)
                 {
-                    InGameScene.Managers.Game.UpdateUserData(item.Money, item.Exp);
+                    InGameScene.Managers.Game.UpdateUserData(item.Money, item.Exp, item.Jewel);
                 }
             }
 
@@ -203,18 +145,24 @@ namespace InGameScene.UI
 
             // 받은 보상을 UI로 표현
             StringBuilder rewardString = new StringBuilder();
-            rewardString.Append("다음 보상을 획득했습니다.\n");
-            for (int i = 0; i < _rewardList.Count; i++)
-            {
-                if (i > 0)
-                {
-                    rewardString.Append("\n");
-                }
-
-                rewardString.Append(_rewardList[i]);
-            }
+            rewardString.Append("보상을 획득했습니다.\n");
 
             StaticManager.UI.AlertUI.OpenAlertUI("퀘스트 완료", rewardString.ToString());
+
+            Managers.Game.UpdateUserMainQuestData();
+            QuestType questType = GetQuestType();
+            switch (questType)
+            {
+                case QuestType.DefeatEnemy_Main:
+                    Managers.Game.UpdateUserMainDefeatEnemyData(true);
+                    break;
+                default:
+                    Managers.Game.UpdateUserMainQuestData(questType);
+                    break;
+            }
+
+            Init(StaticManager.Backend.Chart.Quest.Dictionary[(StaticManager.Backend.GameData.UserData.MainQuestCount % 5 + 4) % 5 + 1]);
+            UpdateMainQuestUI();
         }
     }
 }

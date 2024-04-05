@@ -1,6 +1,7 @@
 ﻿// Copyright 2013-2022 AFI, INC. All rights reserved.
 
 using BackEnd;
+using BackendData.Chart.Quest;
 using InGameScene;
 using LitJson;
 using System;
@@ -32,6 +33,11 @@ namespace BackendData.GameData
         public float Money { get; private set; }
         public string LastLoginTime { get; private set; }
         public int MainQuestCount { get; private set; }
+        public int MainDefeatEnemyCount { get; private set; }
+        public int MainGrowthAtkCount { get; private set; }
+        public int MainGrowthHpCount { get; private set; }
+        public int MainGrowthHpRecorveryCount { get; private set; }
+        public int MainStageClearCount { get; private set; }
         public int StageCount { get; private set; }
         public int GrowthAtkCount { get; private set; }
         public int GrowthHpCount { get; private set; }
@@ -65,12 +71,13 @@ namespace BackendData.GameData
             Atk = 30;
             Hp = 100;
             HpRecorvery = 10;
-            GrowthAtkCount = 0;
-            GrowthHpCount = 0;
-            GrowthHpRecorveryCount = 0;
-            Money = 10000;
             MaxExp = 100;
-            Jewel = 0;
+            StageCount = 1;
+            MainQuestCount = 1;
+            MainGrowthHpCount = 1;
+            MainGrowthAtkCount = 1;
+            MainGrowthHpRecorveryCount = 1;
+            MainStageClearCount = 1;
         }
 
         // Backend.GameData.GetMyData 호출 이후 리턴된 값을 파싱하여 캐싱하는 함수
@@ -85,6 +92,12 @@ namespace BackendData.GameData
             GrowthHpCount = int.Parse(gameDataJson["GrowthHpCount"].ToString());
             GrowthHpRecorveryCount = int.Parse(gameDataJson["GrowthHpRecorveryCount"].ToString());
             MainQuestCount = int.Parse(gameDataJson["MainQuestCount"].ToString());
+            MainDefeatEnemyCount = int.Parse(gameDataJson["MainDefeatEnemyCount"].ToString());
+            MainGrowthAtkCount = int.Parse(gameDataJson["MainGrowthAtkCount"].ToString());
+            MainGrowthHpCount = int.Parse(gameDataJson["MainGrowthHpCount"].ToString());
+            MainGrowthHpRecorveryCount = int.Parse(gameDataJson["MainGrowthHpRecorveryCount"].ToString());
+            MainStageClearCount = int.Parse(gameDataJson["MainStageClearCount"].ToString());
+
             StageCount = int.Parse(gameDataJson["StageCount"].ToString());
             Exp = float.Parse(gameDataJson["Exp"].ToString());
             MaxExp = float.Parse(gameDataJson["MaxExp"].ToString());
@@ -127,6 +140,12 @@ namespace BackendData.GameData
             param.Add("GrowthHpCount", GrowthHpCount);
             param.Add("GrowthHpRecorveryCount", GrowthHpRecorveryCount);
             param.Add("MainQuestCount", MainQuestCount);
+            param.Add("MainDefeatEnemyCount", MainDefeatEnemyCount);
+            param.Add("MainGrowthAtkCount", MainGrowthAtkCount);
+            param.Add("MainGrowthHpCount", MainGrowthHpCount);
+            param.Add("MainGrowthHpRecorveryCount", MainGrowthHpRecorveryCount);
+            param.Add("MainStageClearCount", MainStageClearCount);
+
             param.Add("StageCount", StageCount);
             param.Add("Money", Money);
             param.Add("Jewel", Jewel);
@@ -154,12 +173,13 @@ namespace BackendData.GameData
         }
 
         // 유저의 정보를 변경하는 함수
-        public void UpdateUserData(float money, float exp)
+        public void UpdateUserData(float money, float exp, float jewel)
         {
             IsChangedData = true;
 
             Exp += exp;
             Money += money;
+            Jewel += jewel;
 
             if (money < 0)
             {
@@ -211,6 +231,41 @@ namespace BackendData.GameData
             }
             IsChangedData = true;
             StageCount++;
+        }
+
+        public void UpdateMainQuestCount()
+        {
+            IsChangedData = true;
+            MainQuestCount++;
+        }
+
+        public void UpdateMainDefeatEnemyCount(bool reset)
+        {
+            IsChangedData = true;
+            MainDefeatEnemyCount = reset ? 0 : MainDefeatEnemyCount + 1;
+        }
+
+        public void UpdateMainQuestCount(QuestType questType)
+        {
+            IsChangedData = true;
+            switch (questType)
+            {
+                case QuestType.AtkUp:
+                    MainGrowthAtkCount++;
+                    break;
+                case QuestType.HpUp:
+                    MainGrowthHpCount++;
+                    break;
+                case QuestType.HpRecorveryUp:
+                    MainGrowthHpRecorveryCount++;
+                    break;
+                case QuestType.StageClear:
+                    MainStageClearCount++;
+                    break;
+                default:
+                    break;
+
+            }
         }
 
         // 레벨업하는 함수

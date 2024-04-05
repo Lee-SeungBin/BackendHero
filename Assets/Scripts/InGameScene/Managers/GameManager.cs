@@ -23,7 +23,7 @@ namespace InGameScene
 
         // UserData와 관련된 UI와 서버에 저장될 데이터를 변경하는 함수
         // 해당 함수를 통해서만 UserData 변경 가능
-        public void UpdateUserData(float money, float exp)
+        public void UpdateUserData(float money, float exp, float jewel)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace InGameScene
                 }
 
                 // 조정된 획득량만큼 GameData의 UserData 업데이트
-                StaticManager.Backend.GameData.UserData.UpdateUserData(money, exp);
+                StaticManager.Backend.GameData.UserData.UpdateUserData(money, exp, jewel);
 
                 // 변경된 데이터에 맞게 UserUI 변경(우측 상단)
                 _uiManager.UserUI.UpdateUI();
@@ -66,6 +66,8 @@ namespace InGameScene
                 StaticManager.Backend.GameData.UserData.UpdateGrowthUserData(count, growthType);
 
                 _uiManager.UserUI.UpdateUI();
+                InGameUI_Quest questinfo = _uiManager.BottomUI.GetUI<InGameUI_Quest>();
+                questinfo.UpdateUI(questinfo.GetMainQuestType());
             }
             catch (Exception e)
             {
@@ -78,12 +80,46 @@ namespace InGameScene
             try
             {
                 StaticManager.Backend.GameData.UserData.UpdateStageCount();
-
-                //_uiManager.StageUI.ShowTitleStage(StaticManager.Backend.GameData.UserData.StageCount.ToString());
             }
             catch (Exception e)
             {
                 throw new Exception($"UpdateUserStageData 중 에러가 발생하였습니다\n{e}");
+            }
+        }
+
+        public void UpdateUserMainQuestData()
+        {
+            try
+            {
+                StaticManager.Backend.GameData.UserData.UpdateMainQuestCount();
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"UpdateMainQuestCount 중 에러가 발생하였습니다\n{e}");
+            }
+        }
+
+        public void UpdateUserMainDefeatEnemyData(bool reset)
+        {
+            try
+            {
+                StaticManager.Backend.GameData.UserData.UpdateMainDefeatEnemyCount(reset);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"UpdateMainDefeatEnemyCount 중 에러가 발생하였습니다\n{e}");
+            }
+        }
+
+        public void UpdateUserMainQuestData(QuestType questType)
+        {
+            try
+            {
+                StaticManager.Backend.GameData.UserData.UpdateMainQuestCount(questType);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"UpdateMainDefeatEnemyCount 중 에러가 발생하였습니다\n{e}");
             }
         }
 
@@ -96,11 +132,11 @@ namespace InGameScene
                 _uiManager.BottomUI.GetUI<InGameUI_ItemInventory>().UpdateUI(itemID, count);
                 _uiManager.UserUI.UpdateUI();
 
-                if (count > 0)
-                {
-                    _uiManager.BottomUI.GetUI<InGameUI_Quest>()
-                        .UpdateUIForGetItem(RequestItemType.Item, itemID);
-                }
+                //if (count > 0)
+                //{
+                //    _uiManager.BottomUI.GetUI<InGameUI_Quest>()
+                //        .UpdateUIForGetItem(RequestItemType.Item, itemID);
+                //}
             }
             catch (Exception e)
             {
@@ -115,8 +151,8 @@ namespace InGameScene
             {
                 string myWeaponId = StaticManager.Backend.GameData.WeaponInventory.AddWeapon(weaponId);
                 _uiManager.BottomUI.GetUI<InGameUI_Equip>().AddWeaponObjectInInventoryUI(myWeaponId);
-                _uiManager.BottomUI.GetUI<InGameUI_Quest>()
-                    .UpdateUIForGetItem(RequestItemType.Weapon, weaponId);
+                //_uiManager.BottomUI.GetUI<InGameUI_Quest>()
+                //    .UpdateUIForGetItem(RequestItemType.Weapon, weaponId);
             }
             catch (Exception e)
             {
