@@ -34,8 +34,6 @@ namespace InGameScene.UI
         {
             _questItemInfo = questItemInfo;
 
-            Debug.Log((StaticManager.Backend.GameData.UserData.MainQuestCount % 5 + 4) % 5 + 1);
-
             UpdateMainQuestUI();
 
             _requestAchieveButton.onClick.RemoveAllListeners();

@@ -52,7 +52,7 @@ namespace InGameScene.UI
             float upgradePrice = _weaponInfo.GetCurrentWeaponStat().UpgradePrice;
 
             // 업그레이드 비용이 더 높을 경우
-            if (StaticManager.Backend.GameData.UserData.Money < upgradePrice)
+            if (StaticManager.Backend.GameData.UserData.Jewel < upgradePrice)
             {
                 StaticManager.UI.AlertUI.OpenWarningUI("업그레이드 불가", "보유중인 재화가 부족합니다.");
                 return;
@@ -71,7 +71,7 @@ namespace InGameScene.UI
             _weaponStat.text = stat;
 
             // money 데이터 감소
-            InGameScene.Managers.Game.UpdateUserData(-upgradePrice, 0, 0);
+            InGameScene.Managers.Game.UpdateUserData(0, 0, -upgradePrice);
         }
 
         // 창착 여부를 설정하는 함수
