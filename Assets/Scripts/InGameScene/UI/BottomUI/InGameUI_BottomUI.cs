@@ -98,5 +98,10 @@ namespace InGameScene.UI
         {
             MainUI.SetActive(active);
         }
+
+        public void OnClickAd()
+        {
+            AdManager.Instance.ShowRewardedAd();
+        }
     }
 }
