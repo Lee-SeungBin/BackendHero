@@ -28,6 +28,8 @@ namespace InGameScene.UI
             // 퀘스트 차트에 있는 모든 정보 불러와 생성
             foreach (var questItem in StaticManager.Backend.Chart.Quest.Dictionary)
             {
+                if (questItem.Value.QuestID == 1 || questItem.Value.QuestID == 2 || questItem.Value.QuestID == 3 || questItem.Value.QuestID == 4 || questItem.Value.QuestID == 5)
+                    continue;
                 var newQuestItem = Instantiate(_questItemPrefab, _QuestParentObject.transform, true);
                 newQuestItem.transform.localPosition = new Vector3(0, 0, 0);
                 newQuestItem.transform.localScale = new Vector3(1, 1, 1);
@@ -35,7 +37,7 @@ namespace InGameScene.UI
                 var useItem = newQuestItem.GetComponent<InGameUI_QuestItem>();
                 useItem.Init(questItem.Value);
                 _questItemDic.Add(questItem.Value.QuestID, useItem);
-
+                Debug.Log(questItem.Value.QuestID);
                 // 해당 퀘스트 타입
                 int typeNum = (int)questItem.Value.QuestType;
 

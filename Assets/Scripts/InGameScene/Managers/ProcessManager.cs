@@ -64,6 +64,11 @@ namespace InGameScene
         //적을 처치하고 난 이후 다른 적을 생성하는 함수
         private void RespawnNextEnemy()
         {
+            //InGameUI_Quest questinfo = _uiManager.BottomUI.GetUI<InGameUI_Quest>();
+            //if (questinfo.GetMainQuestType() == QuestType.StageClear)
+            //{
+            //    questinfo.UpdateUI(QuestType.StageClear);
+            //}
             Managers.Game.UpdateUserStageData();
             _currentStageNum = StaticManager.Backend.GameData.UserData.StageCount - 1;
 

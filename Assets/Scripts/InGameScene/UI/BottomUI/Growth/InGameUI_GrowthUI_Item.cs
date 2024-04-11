@@ -58,6 +58,7 @@ namespace InGameScene.UI
 
 
             // 업그레이드 버튼 연결
+            StatUpgradeButton.onClick.RemoveAllListeners();
             StatUpgradeButton.onClick.AddListener(() => OnClickUpgradeButton(userData, growthType));
         }
 

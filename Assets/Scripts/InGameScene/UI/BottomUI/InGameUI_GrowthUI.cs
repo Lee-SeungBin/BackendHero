@@ -27,8 +27,8 @@ namespace InGameScene.UI
         {
             userData = StaticManager.Backend?.GameData.UserData;
             _bottomUIs = transform.GetComponentsInChildren<InGameUI_BottomUIBase>();
-            int GrowthMin = (int)UserData.GrowthType.Min;
-            int GrowthMax = (int)UserData.GrowthType.Max;
+            int GrowthMin = (int)UserData.GrowthType.Atk;
+            int GrowthMax = (int)UserData.GrowthType.HpRecorvery;
 
             // BottomUI 정보 불러와 초기화
             foreach (var ui in _bottomUIs)
@@ -107,8 +107,8 @@ namespace InGameScene.UI
                         break;
                 }
 
-                int GrowthMin = (int)UserData.GrowthType.Min;
-                int GrowthMax = (int)UserData.GrowthType.Max;
+                int GrowthMin = (int)UserData.GrowthType.Atk;
+                int GrowthMax = (int)UserData.GrowthType.HpRecorvery;
                 for (int i = GrowthMin; i <= GrowthMax; i++)
                 {
                     GrowthObj[i].GetComponent<InGameUI_GrowthUI_Item>().UpgradeCount = Count;

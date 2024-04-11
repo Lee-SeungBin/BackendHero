@@ -28,7 +28,7 @@ namespace InGameScene
         public float Money { get; private set; }
         public float Exp { get; private set; }
 
-        private const float _moveSpeed = 0.1f;
+        private const float _moveSpeed = 0.5f;
         private const float AttackDelay = 3f;
         private float CurrentTime = 0f;
 

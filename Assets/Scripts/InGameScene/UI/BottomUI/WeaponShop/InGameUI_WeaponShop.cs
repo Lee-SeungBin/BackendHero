@@ -103,8 +103,8 @@ namespace InGameScene.UI
 
                 Managers.Game.UpdateWeaponInventory(int.Parse(item.WeaponID));
                 resultitem.Init(int.Parse(item.WeaponID), StaticManager.Backend.GameData.WeaponInventory.dup ? true : false);
-
             }
+            Managers.Game.UpdateUserData(0, 0, -Price);
         }
 
         public void OnClickCloseResultPopup()

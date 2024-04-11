@@ -1388,6 +1388,7 @@ MonoBehaviour:
   _UIChangeButtonParentObject: {fileID: 359684890}
   GrowthPopup: {fileID: 427668057}
   MainUI: {fileID: 1963076424}
+  BG: {fileID: 153052532}
 --- !u!114 &153052536
 MonoBehaviour:
   m_ObjectHideFlags: 0

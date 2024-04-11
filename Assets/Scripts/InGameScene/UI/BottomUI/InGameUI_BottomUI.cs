@@ -16,7 +16,7 @@ namespace InGameScene.UI
         [SerializeField] private GameObject _UIChangeButtonParentObject;
         [SerializeField] private GameObject GrowthPopup;
         [SerializeField] private GameObject MainUI;
-
+        [SerializeField] private Image BG;
         //===========================================================
         // 씬에서 다른 바텀 UI들은 전부 활성화가 되어있어야한다.
         //===========================================================
@@ -42,6 +42,7 @@ namespace InGameScene.UI
                 _bottomUIButtons[index].onClick.AddListener(() => ChangeUI(index));
             }
             MainUI.SetActive(false);
+            BG.raycastTarget = false;
         }
 
         // 바텀 내 각 BottomUIBase를 가지고 있는 UI 클래스에 접근
@@ -65,7 +66,7 @@ namespace InGameScene.UI
             {
 
                 Type type = _bottomUIs[index].GetType();
-
+                BG.raycastTarget = true;
                 // 배열을 순회하면서 해당 UI에 맞는 클래스에 존재할 경우 활성화, 나머지는 비활성화
                 for (int i = 1; i < _bottomUIs.Length; i++)
                 {
@@ -97,6 +98,7 @@ namespace InGameScene.UI
         public void OnClickActiveMainUI(bool active)
         {
             MainUI.SetActive(active);
+            BG.raycastTarget = active;
         }
 
         public void OnClickAd()

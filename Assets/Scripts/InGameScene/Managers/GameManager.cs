@@ -129,7 +129,7 @@ namespace InGameScene
             try
             {
                 StaticManager.Backend.GameData.ItemInventory.AddItem(itemID, count);
-                _uiManager.BottomUI.GetUI<InGameUI_ItemInventory>().UpdateUI(itemID, count);
+                //_uiManager.BottomUI.GetUI<InGameUI_ItemInventory>().UpdateUI(itemID, count);
                 _uiManager.UserUI.UpdateUI();
 
                 //if (count > 0)

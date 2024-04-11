@@ -23,8 +23,6 @@ namespace BackendData.GameData
             Atk,
             Hp,
             HpRecorvery,
-            Min = Atk,
-            Max = HpRecorvery,
         }
         public int Level { get; private set; }
         public int Atk { get; private set; }
